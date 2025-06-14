@@ -20,13 +20,51 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   </head>
   <body>
+    <!-- Welcome Screen Animation -->
+    <div class="welcome-screen" id="welcomeScreen">
+      <div class="welcome-logo">
+        <i class="fas fa-brain"></i>
+      </div>
+      <div class="welcome-text">Mind Companion</div>
+    </div>
+
     <div class="container">
       <header>
         <h1><i class="fas fa-brain"></i> Mind Companion</h1>
         <p class="tagline">A supportive space for your mental wellbeing</p>
+
+        <div class="ui-controls">
+          <button class="dark-mode-toggle" id="darkModeToggle">
+            <i class="fas fa-moon"></i>
+          </button>
+        </div>
       </header>
 
       <main>
+        <div class="mood-tracker" id="moodTracker">
+          <h3>How are you feeling today?</h3>
+          <div class="mood-options">
+            <button class="mood-option" data-mood="great">
+              <span class="mood-emoji">😃</span> Great
+            </button>
+            <button class="mood-option" data-mood="good">
+              <span class="mood-emoji">🙂</span> Good
+            </button>
+            <button class="mood-option" data-mood="okay">
+              <span class="mood-emoji">😐</span> Okay
+            </button>
+            <button class="mood-option" data-mood="sad">
+              <span class="mood-emoji">😔</span> Sad
+            </button>
+            <button class="mood-option" data-mood="stressed">
+              <span class="mood-emoji">😫</span> Stressed
+            </button>
+            <button class="mood-option" data-mood="anxious">
+              <span class="mood-emoji">😰</span> Anxious
+            </button>
+          </div>
+        </div>
+
         <div class="chat-container">
           <div class="chat-messages" id="chatMessages">
             <div class="message bot-message">
@@ -36,8 +74,20 @@
                   How are you feeling today?
                 </p>
               </div>
+              <div class="suggestion-chips">
+                <button class="suggestion-chip">I'm feeling anxious</button>
+                <button class="suggestion-chip">Feeling down today</button>
+                <button class="suggestion-chip">
+                  Need help managing stress
+                </button>
+                <button class="suggestion-chip">Can't sleep well</button>
+              </div>
             </div>
           </div>
+
+          <button class="scroll-to-bottom" id="scrollToBottom">
+            <i class="fas fa-chevron-down"></i>
+          </button>
 
           <div class="chat-input">
             <textarea

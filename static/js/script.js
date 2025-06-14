@@ -10,6 +10,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const exerciseContainer = document.getElementById("exerciseContainer");
   const exerciseContent = document.getElementById("exerciseContent");
   const closeExercise = document.getElementById("closeExercise");
+  const darkModeToggle = document.getElementById("darkModeToggle");
+  const moodTracker = document.getElementById("moodTracker");
+  const moodOptions = document.querySelectorAll(".mood-option");
+  const welcomeScreen = document.getElementById("welcomeScreen");
+  const scrollToBottomBtn = document.getElementById("scrollToBottom");
+  const suggestionChips = document.querySelectorAll(".suggestion-chip");
+
+  // Dark Mode Setup
+  const prefersDarkMode = window.matchMedia(
+    "(prefers-color-scheme: dark)"
+  ).matches;
+
+  // Check if dark mode was previously set
+  if (
+    localStorage.getItem("darkMode") === "true" ||
+    (prefersDarkMode && localStorage.getItem("darkMode") === null)
+  ) {
+    document.body.classList.add("dark-mode");
+    darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+  }
 
   // Event Listeners
   sendButton.addEventListener("click", sendMessage);
@@ -28,8 +48,75 @@ document.addEventListener("DOMContentLoaded", () => {
     exerciseContainer.style.display = "none";
   });
 
-  // Focus input field when page loads
-  userInput.focus();
+  // Dark mode toggle
+  darkModeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark-mode");
+
+    // Update icon
+    if (document.body.classList.contains("dark-mode")) {
+      darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+      localStorage.setItem("darkMode", "true");
+    } else {
+      darkModeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+      localStorage.setItem("darkMode", "false");
+    }
+  });
+
+  // Mood tracking
+  moodOptions.forEach((option) => {
+    option.addEventListener("click", () => {
+      // Remove selected class from all options
+      moodOptions.forEach((btn) => btn.classList.remove("selected"));
+
+      // Add selected class to clicked option
+      option.classList.add("selected");
+
+      // Send mood to chat
+      const mood = option.getAttribute("data-mood");
+      userInput.value = `I'm feeling ${mood} today`;
+      sendMessage();
+
+      // Hide mood tracker with animation
+      moodTracker.style.animation = "slideInUp 0.5s ease-out forwards reverse";
+      setTimeout(() => {
+        moodTracker.style.display = "none";
+      }, 500);
+    });
+  });
+
+  // Scroll to bottom button
+  chatMessages.addEventListener("scroll", () => {
+    const isScrolledToBottom =
+      chatMessages.scrollHeight - chatMessages.clientHeight <=
+      chatMessages.scrollTop + 100;
+    if (!isScrolledToBottom) {
+      scrollToBottomBtn.classList.add("visible");
+    } else {
+      scrollToBottomBtn.classList.remove("visible");
+    }
+  });
+
+  scrollToBottomBtn.addEventListener("click", () => {
+    scrollToBottom();
+  });
+
+  // Suggestion chips
+  suggestionChips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      userInput.value = chip.textContent;
+      sendMessage();
+    });
+  });
+
+  // Hide welcome screen after animation completes
+  setTimeout(() => {
+    welcomeScreen.style.display = "none";
+  }, 3500);
+
+  // Focus input field when page loads (after welcome animation)
+  setTimeout(() => {
+    userInput.focus();
+  }, 3600);
 
   // Handle sending messages
   function sendMessage() {
@@ -134,6 +221,94 @@ document.addEventListener("DOMContentLoaded", () => {
     // If it's a bot message, parse Markdown, otherwise use plain text
     if (sender === "bot") {
       contentDiv.innerHTML = marked.parse(content);
+
+      // Add reaction buttons to bot messages
+      const reactionsDiv = document.createElement("div");
+      reactionsDiv.className = "message-reactions";
+
+      const reactions = [
+        { emoji: "❤️", title: "Thank you" },
+        { emoji: "👍", title: "Helpful" },
+        { emoji: "🔄", title: "Try another response" },
+      ];
+
+      reactions.forEach((reaction) => {
+        const button = document.createElement("button");
+        button.className = "reaction-button";
+        button.innerHTML = reaction.emoji;
+        button.title = reaction.title;
+
+        // Add event listener to reaction buttons
+        button.addEventListener("click", () => {
+          if (reaction.emoji === "🔄") {
+            // Request alternative response
+            userInput.value = "Can you give me another perspective on this?";
+            sendMessage();
+          } else {
+            // Show appreciation animation
+            button.style.transform = "scale(1.5)";
+            setTimeout(() => {
+              button.style.transform = "scale(1)";
+            }, 300);
+          }
+        });
+
+        reactionsDiv.appendChild(button);
+      });
+
+      contentDiv.appendChild(reactionsDiv);
+
+      // Add suggestion chips for relevant bot messages
+      if (
+        content.includes("anxiety") ||
+        content.includes("stress") ||
+        content.includes("feeling") ||
+        content.includes("help") ||
+        content.includes("support")
+      ) {
+        const suggestionsDiv = document.createElement("div");
+        suggestionsDiv.className = "suggestion-chips";
+
+        const suggestions = [];
+
+        if (content.includes("anxiety") || content.includes("stress")) {
+          suggestions.push("How can I manage anxiety?", "Breathing exercises");
+        }
+
+        if (content.includes("feeling") || content.includes("mood")) {
+          suggestions.push("Why do I feel this way?", "How to improve mood");
+        }
+
+        if (content.includes("sleep")) {
+          suggestions.push("Sleep meditation", "Insomnia tips");
+        }
+
+        if (suggestions.length === 0) {
+          suggestions.push(
+            "Tell me more",
+            "How can you help me?",
+            "Mental health tips"
+          );
+        }
+
+        // Only show up to 3 suggestions
+        const finalSuggestions = suggestions.slice(0, 3);
+
+        finalSuggestions.forEach((suggestion) => {
+          const chip = document.createElement("button");
+          chip.className = "suggestion-chip";
+          chip.textContent = suggestion;
+
+          chip.addEventListener("click", () => {
+            userInput.value = suggestion;
+            sendMessage();
+          });
+
+          suggestionsDiv.appendChild(chip);
+        });
+
+        contentDiv.appendChild(suggestionsDiv);
+      }
     } else {
       const paragraph = document.createElement("p");
       paragraph.textContent = content;
@@ -155,21 +330,52 @@ document.addEventListener("DOMContentLoaded", () => {
     const contentDiv = document.createElement("div");
     contentDiv.className = "message-content";
 
+    // Enhanced typing animation
     const dots = document.createElement("p");
     dots.innerHTML = "<span>.</span><span>.</span><span>.</span>";
 
+    // Add a subtle message to enhance user experience
+    const typingText = document.createElement("div");
+    typingText.style.fontSize = "0.8rem";
+    typingText.style.opacity = "0.7";
+    typingText.style.marginTop = "5px";
+    typingText.textContent = "Mind Companion is thinking...";
+
     contentDiv.appendChild(dots);
+    contentDiv.appendChild(typingText);
     typingDiv.appendChild(contentDiv);
     chatMessages.appendChild(typingDiv);
 
     scrollToBottom();
+
+    // Add random typing delay for more natural feel
+    if (!window.typingAnimation) {
+      window.typingAnimation = setInterval(() => {
+        dots.style.opacity = dots.style.opacity === "0.4" ? "1" : "0.4";
+      }, 500);
+    }
   }
 
   // Remove typing indicator
   function removeTypingIndicator() {
     const typingIndicator = document.getElementById("typingIndicator");
     if (typingIndicator) {
-      typingIndicator.remove();
+      // Add fade out animation
+      typingIndicator.style.opacity = "0";
+      typingIndicator.style.transform = "translateY(10px)";
+      typingIndicator.style.transition = "opacity 0.3s, transform 0.3s";
+
+      // Clear typing animation
+      if (window.typingAnimation) {
+        clearInterval(window.typingAnimation);
+        window.typingAnimation = null;
+      }
+
+      setTimeout(() => {
+        if (typingIndicator.parentNode) {
+          typingIndicator.remove();
+        }
+      }, 300);
     }
   }
 
@@ -185,6 +391,14 @@ document.addEventListener("DOMContentLoaded", () => {
       const resourceItem = document.createElement("div");
       resourceItem.className = "resource-item";
 
+      // Add a nice fade in animation for each item
+      resourceItem.style.animation = "fadeIn 0.5s ease-out forwards";
+      resourceItem.style.opacity = "0";
+
+      // Stagger the animations
+      const index = Array.from(resourcesContent.children).indexOf(resourceItem);
+      resourceItem.style.animationDelay = `${index * 0.15}s`;
+
       const name = document.createElement("h3");
       name.textContent = resource.name;
       resourceItem.appendChild(name);
@@ -199,20 +413,24 @@ document.addEventListener("DOMContentLoaded", () => {
         link.href = resource.website;
         link.target = "_blank";
         link.className = "resource-link";
-        link.textContent = "Visit Website";
+
+        // Add icon for better visual cue
+        link.innerHTML =
+          '<i class="fas fa-external-link-alt"></i> Visit Website';
+
         website.appendChild(link);
         resourceItem.appendChild(website);
       }
 
       if (resource.contact) {
         const contact = document.createElement("p");
-        contact.textContent = `Contact: ${resource.contact}`;
+        contact.innerHTML = `<i class="fas fa-address-card"></i> <strong>Contact:</strong> ${resource.contact}`;
         resourceItem.appendChild(contact);
       }
 
       if (resource.helpline) {
         const helpline = document.createElement("p");
-        helpline.textContent = `Helpline: ${resource.helpline}`;
+        helpline.innerHTML = `<i class="fas fa-phone"></i> <strong>Helpline:</strong> ${resource.helpline}`;
         resourceItem.appendChild(helpline);
       }
 
@@ -220,6 +438,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     resourcesContainer.style.display = "block";
+
+    // Animation effect
+    resourcesContainer.style.animation = "slideInUp 0.5s ease-out";
   }
 
   // Display exercise
@@ -241,11 +462,46 @@ document.addEventListener("DOMContentLoaded", () => {
     benefits.textContent = `Benefits: ${exercise.benefits}`;
     exerciseContent.appendChild(benefits);
 
+    // Add breathing exercise animation for breathing-related exercises
+    if (
+      exercise.name.toLowerCase().includes("breath") ||
+      exercise.description.toLowerCase().includes("breath")
+    ) {
+      const breathingDiv = document.createElement("div");
+      breathingDiv.className = "breathing-exercise";
+
+      const circle = document.createElement("div");
+      circle.className = "breathing-circle";
+      circle.innerHTML = "Breathe";
+
+      const instructions = document.createElement("p");
+      instructions.className = "breathing-instructions";
+      instructions.innerHTML =
+        "Breathe in as the circle expands<br>Breathe out as it contracts";
+
+      breathingDiv.appendChild(circle);
+      breathingDiv.appendChild(instructions);
+
+      exerciseContent.appendChild(breathingDiv);
+    }
+
     exerciseContainer.style.display = "block";
+
+    // Animation effect
+    exerciseContainer.style.animation = "slideInUp 0.5s ease-out";
   }
 
   // Reset conversation
   function resetConversation() {
+    // Add loading animation
+    chatMessages.innerHTML = `
+      <div class="message bot-message">
+        <div class="message-content">
+          <p>Resetting our conversation...</p>
+        </div>
+      </div>
+    `;
+
     fetch("/api/reset", {
       method: "POST",
     })
@@ -260,13 +516,67 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       })
       .then((data) => {
-        chatMessages.innerHTML = "";
-        appendMessage(
-          "Hello! I'm Mind Companion, your mental health support chatbot. How are you feeling today?",
-          "bot"
-        );
-        resourcesContainer.style.display = "none";
-        exerciseContainer.style.display = "none";
+        // Fade out effect before clearing
+        const messages = chatMessages.querySelectorAll(".message");
+        messages.forEach((msg) => {
+          msg.style.opacity = "0";
+          msg.style.transform = "translateY(20px)";
+          msg.style.transition = "opacity 0.5s, transform 0.5s";
+        });
+
+        setTimeout(() => {
+          chatMessages.innerHTML = "";
+
+          // Show mood tracker again
+          moodTracker.style.display = "block";
+          moodTracker.style.animation = "slideInDown 0.5s ease-out";
+
+          // Reset mood options
+          moodOptions.forEach((option) => {
+            option.classList.remove("selected");
+          });
+
+          // Add welcome message
+          appendMessage(
+            "Hello! I'm Mind Companion, your mental health support chatbot. How are you feeling today?",
+            "bot"
+          );
+
+          // Add suggestion chips
+          const firstMessage = chatMessages.querySelector(".bot-message");
+          if (firstMessage) {
+            const suggestionsDiv = document.createElement("div");
+            suggestionsDiv.className = "suggestion-chips";
+
+            const suggestions = [
+              "I'm feeling anxious",
+              "Feeling down today",
+              "Need help managing stress",
+              "Can't sleep well",
+            ];
+
+            suggestions.forEach((text) => {
+              const chip = document.createElement("button");
+              chip.className = "suggestion-chip";
+              chip.textContent = text;
+
+              chip.addEventListener("click", () => {
+                userInput.value = text;
+                sendMessage();
+              });
+
+              suggestionsDiv.appendChild(chip);
+            });
+
+            firstMessage
+              .querySelector(".message-content")
+              .appendChild(suggestionsDiv);
+          }
+
+          // Hide resources and exercise containers
+          resourcesContainer.style.display = "none";
+          exerciseContainer.style.display = "none";
+        }, 500);
       })
       .catch((error) => console.error("Error:", error));
   }
