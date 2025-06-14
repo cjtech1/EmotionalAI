@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mind Companion - Mental Health Chatbot</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1><i class="fas fa-brain"></i> Mind Companion</h1>
+        <p class="tagline">A supportive space for your mental wellbeing</p>
+      </header>
+
+      <main>
+        <div class="chat-container">
+          <div class="chat-messages" id="chatMessages">
+            <div class="message bot-message">
+              <div class="message-content">
+                <p>
+                  Hello! I'm Mind Companion, your mental health support chatbot.
+                  How are you feeling today?
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-input">
+            <textarea
+              id="userInput"
+              placeholder="Type your message here..."
+            ></textarea>
+            <button id="sendButton"><i class="fas fa-paper-plane"></i></button>
+          </div>
+        </div>
+
+        <div
+          class="resources-container"
+          id="resourcesContainer"
+          style="display: none"
+        >
+          <div class="resources-header">
+            <h2>Helpful Resources</h2>
+            <button class="close-resources" id="closeResources">&times;</button>
+          </div>
+          <div class="resources-content" id="resourcesContent">
+            <!-- Resources will be displayed here -->
+          </div>
+        </div>
+
+        <div
+          class="exercise-container"
+          id="exerciseContainer"
+          style="display: none"
+        >
+          <div class="exercise-header">
+            <h2>Exercise Suggestion</h2>
+            <button class="close-exercise" id="closeExercise">&times;</button>
+          </div>
+          <div class="exercise-content" id="exerciseContent">
+            <!-- Exercise will be displayed here -->
+          </div>
+        </div>
+      </main>
+
+      <footer>
+        <button id="resetBtn" class="reset-button">
+          <i class="fas fa-redo"></i> Reset Conversation
+        </button>
+        <p class="disclaimer">
+          This is not a substitute for professional mental health services. If
+          you're in crisis, please call a mental health hotline or emergency
+          services.
+        </p>
+      </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  </body>
+</html>
