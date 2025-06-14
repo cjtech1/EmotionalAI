@@ -1,0 +1,68 @@
+/* Markdown Formatting Styles */
+.bot-message .message-content {
+  line-height: 1.6;
+}
+
+.bot-message .message-content p {
+  margin-bottom: 12px;
+}
+
+.bot-message .message-content strong,
+.bot-message .message-content b {
+  font-weight: 700;
+  color: #4a3f9e;
+}
+
+.bot-message .message-content em,
+.bot-message .message-content i {
+  font-style: italic;
+}
+
+.bot-message .message-content ul,
+.bot-message .message-content ol {
+  margin-left: 24px;
+  margin-bottom: 12px;
+}
+
+.bot-message .message-content li {
+  margin-bottom: 6px;
+}
+
+.bot-message .message-content h1,
+.bot-message .message-content h2,
+.bot-message .message-content h3,
+.bot-message .message-content h4 {
+  margin-top: 16px;
+  margin-bottom: 8px;
+  color: #5e4caf;
+}
+
+.bot-message .message-content a {
+  color: #6a5acd;
+  text-decoration: underline;
+}
+
+.bot-message .message-content a:hover {
+  text-decoration: none;
+}
+
+.bot-message .message-content blockquote {
+  border-left: 4px solid #9370db;
+  padding-left: 12px;
+  margin-left: 0;
+  margin-right: 0;
+  font-style: italic;
+  color: #555;
+}
+
+.bot-message .message-content code {
+  background-color: #f0f0f0;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+/* Add spacing between paragraphs */
+.bot-message .message-content p + p {
+  margin-top: 12px;
+}

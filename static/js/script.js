@@ -131,10 +131,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const contentDiv = document.createElement("div");
     contentDiv.className = "message-content";
 
-    const paragraph = document.createElement("p");
-    paragraph.textContent = content;
+    // If it's a bot message, parse Markdown, otherwise use plain text
+    if (sender === "bot") {
+      contentDiv.innerHTML = marked.parse(content);
+    } else {
+      const paragraph = document.createElement("p");
+      paragraph.textContent = content;
+      contentDiv.appendChild(paragraph);
+    }
 
-    contentDiv.appendChild(paragraph);
     messageDiv.appendChild(contentDiv);
     chatMessages.appendChild(messageDiv);
 

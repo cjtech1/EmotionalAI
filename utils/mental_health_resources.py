@@ -86,23 +86,36 @@ def get_resources_by_concern(concern_level):
     """
     Return appropriate resources based on concern level
     """
+    # Default empty structure to ensure consistent response format
+    response = {
+        "message": "",
+        "resources": [],
+        "type": concern_level  # Adding type for frontend handling
+    }
+    
     if concern_level == "critical":
-        return {
+        response.update({
             "message": "These resources can provide immediate support:",
-            "resources": CRISIS_RESOURCES
-        }
+            "resources": CRISIS_RESOURCES,
+            "priority": "high"
+        })
     elif concern_level == "high":
-        return {
+        response.update({
             "message": "Here are some helpful mental health resources:",
-            "resources": CRISIS_RESOURCES + GENERAL_RESOURCES[:1]
-        }
+            "resources": CRISIS_RESOURCES + GENERAL_RESOURCES[:1],
+            "priority": "medium"
+        })
     elif concern_level == "moderate":
-        return {
+        response.update({
             "message": "These resources might be helpful:",
-            "resources": GENERAL_RESOURCES + ONLINE_RESOURCES[:2]
-        }
+            "resources": GENERAL_RESOURCES + ONLINE_RESOURCES[:2],
+            "priority": "low"
+        })
     else:
-        return {
+        response.update({
             "message": "If you're interested in learning more about mental wellness, check out these resources:",
-            "resources": ONLINE_RESOURCES + READING_RESOURCES[:1]
-        }
+            "resources": ONLINE_RESOURCES + READING_RESOURCES[:1],
+            "priority": "info"
+        })
+    
+    return response

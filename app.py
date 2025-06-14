@@ -75,68 +75,78 @@ def chat():
             'timestamp': datetime.now().isoformat()
         })
         
-        # Analyze mental health issues in the message
-        mental_health_data = detect_mental_health_issues(user_message)
-        concern_level = get_concern_level(mental_health_data)
-        
-        # Generate a response based on the analysis
-        bot_response = generate_response(
-            user_message, 
-            mental_health_data,
-            conversations[session_id]
-        )
-        
-        # Determine if we should add an exercise suggestion
-        should_add_exercise = any(score > 0.3 for score in [
-            mental_health_data['anxiety'],
-            mental_health_data['depression'],
-            mental_health_data['burnout']
-        ])
-        
-        exercise_suggestion = None
-        if should_add_exercise:
-            # Find the most prominent issue
-            issues = {
-                'anxiety': mental_health_data['anxiety'],
-                'depression': mental_health_data['depression'],
-                'burnout': mental_health_data['burnout']
+        try:
+            # Analyze mental health issues in the message
+            mental_health_data = detect_mental_health_issues(user_message)
+            concern_level = get_concern_level(mental_health_data)
+            
+            # Generate a response based on the analysis
+            bot_response = generate_response(
+                user_message, 
+                mental_health_data,
+                conversations[session_id]
+            )
+            
+            # Determine if we should add an exercise suggestion
+            should_add_exercise = any(score > 0.3 for score in [
+                mental_health_data['anxiety'],
+                mental_health_data['depression'],
+                mental_health_data['burnout']
+            ])
+            
+            exercise_suggestion = None
+            if should_add_exercise:
+                # Find the most prominent issue
+                issues = {
+                    'anxiety': mental_health_data['anxiety'],
+                    'depression': mental_health_data['depression'],
+                    'burnout': mental_health_data['burnout']
+                }
+                prominent_issue = max(issues, key=issues.get)
+                exercise_suggestion = get_exercise_for_state(prominent_issue)
+            
+            # Get appropriate resources based on concern level
+            resources = get_resources_by_concern(concern_level)
+            
+            # Add bot response to conversation history
+            conversations[session_id].append({
+                'role': 'assistant',
+                'content': bot_response,
+                'timestamp': datetime.now().isoformat()
+            })
+            
+            # Ensure all response components are properly structured
+            response = {
+                'status': 'success',
+                'message': bot_response,
+                'exercise': exercise_suggestion if exercise_suggestion else None,
+                'resources': resources if concern_level in ['moderate', 'high', 'critical'] else None,
+                'concern_level': concern_level
             }
-            prominent_issue = max(issues, key=issues.get)
-            exercise_suggestion = get_exercise_for_state(prominent_issue)
-        
-        # Get appropriate resources based on concern level
-        resources = get_resources_by_concern(concern_level)
-        
-        # Add bot response to conversation history
-        conversations[session_id].append({
-            'role': 'assistant',
-            'content': bot_response,
-            'timestamp': datetime.now().isoformat()
-        })
-        
-        # Prepare the response
-        response = {
-            'message': bot_response,
-            'exercise': exercise_suggestion,
-            'resources': resources if concern_level in ['moderate', 'high', 'critical'] else None,
-            'concern_level': concern_level
-        }
-        
-        return jsonify(response)
+            
+            return jsonify(response), 200
+            
+        except Exception as e:
+            print(f"Error processing message: {str(e)}")
+            print(traceback.format_exc())
+            return jsonify({
+                'error': 'Processing error',
+                'message': "I apologize, but I encountered an error while processing your message. Please try again.",
+                'resources': None,
+                'exercise': None
+            }), 500
+            
     except Exception as e:
         print(f"Error in /api/chat: {str(e)}")
-        print(traceback.format_exc())  # This will print the full stacktrace to help with debugging
+        print(traceback.format_exc())
         
-        # Provide a fallback response that will always be JSON
-        error_response = {
-            'error': str(e)[:200],  # Limit error message length
+        return jsonify({
+            'error': str(e)[:200],
             'message': "I'm sorry, I encountered an error processing your message. Please try again.",
-            'traceback': traceback.format_exc()[:500] if os.getenv('DEBUG') == 'True' else None
-        }
-        
-        # Always return as JSON with correct content type
-        return jsonify(error_response), 500
-
+            'resources': None,
+            'exercise': None
+        }), 500
+    
 @app.route('/api/reset', methods=['POST'])
 def reset_conversation():
     try:
