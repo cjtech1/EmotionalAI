@@ -15,21 +15,21 @@ Mind Companion is an empathetic AI chatbot designed to provide mental health sup
 ### Prerequisites
 
 - Python 3.8 or higher
-- OpenAI API key
+- Google API key
 
 ### Installation
 
 1. Clone the repository (if applicable) or navigate to the project directory:
 
    ```
-   cd /path/to/ChatBot
+   git clone https://github.com/cjtech1/EmotionalAI.git
    ```
 
 2. Create and activate a virtual environment:
 
    ```
-   python3 -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   python3 -m venv
+   source venv/bin/activate
    ```
 
 3. Install the required packages:
@@ -38,10 +38,10 @@ Mind Companion is an empathetic AI chatbot designed to provide mental health sup
    pip install -r requirements.txt
    ```
 
-4. Set up your OpenAI API key:
+4. Set up your Google API key:
    Create a `.env` file in the project root and add your API key:
    ```
-   OPENAI_API_KEY=your_api_key_here
+   GOOGLE_API_KEY=your_api_key_here
    ```
 
 ### Running the Application

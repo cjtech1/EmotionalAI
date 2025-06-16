@@ -10,6 +10,7 @@ cahtBoat/
 # IDE / Editor specific
 .vscode/
 .idea/
+unwanted/
 
 # OS specific
 .DS_Store
